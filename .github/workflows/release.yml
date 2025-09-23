@@ -1,0 +1,85 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build (${{ matrix.goos }}-${{ matrix.goarch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Download deps
+        run: go mod download
+
+      - name: Build
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p dist/whale-${{ matrix.goos }}-${{ matrix.goarch }}
+          go build -trimpath -ldflags "-s -w" -o dist/whale-${{ matrix.goos }}-${{ matrix.goarch }}/whale ./cmd/whale
+          tar -C dist/whale-${{ matrix.goos }}-${{ matrix.goarch }} -czf dist/whale-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz whale
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: whale-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            dist/whale-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
+
+  release:
+    name: create release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Collect files and checksums
+        run: |
+          mkdir -p upload
+          find dist -name '*.tar.gz' -maxdepth 2 -type f -print -exec cp {} upload/ \;
+          (cd upload && sha256sum *.tar.gz > checksums.txt)
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            upload/*.tar.gz
+            upload/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+

@@ -15,6 +15,19 @@ make build
 ./bin/whale
 ```
 
+### Quick install (Unix) via curl
+Prebuilt binaries (recommended) if releases are available:
+```bash
+curl -fsSL https://raw.githubusercontent.com/yourusername/whale/main/scripts/install.sh | sh
+```
+
+Install a specific version (e.g., v0.1.0):
+```bash
+VERSION=v0.1.0 curl -fsSL https://raw.githubusercontent.com/yourusername/whale/main/scripts/install.sh | sh
+```
+
+If no release asset is found, the script falls back to `go install` (requires Go), then places `whale` into `/usr/local/bin` (use `sudo` if required). You can override destination with `DEST=/some/path`.
+
 ## Usage
 ```bash
 whale                 # list running containers with stats in a table
@@ -35,14 +48,6 @@ whale net --watch               # live network view (table only)
 ### JSON example
 ```bash
 ./bin/whale --format=json | jq .
-```
-
-### Sample table output
-```
-NAME            ID           STATUS          CPU %  MEM USAGE / LIMIT  MEM %  NET I/O        BLOCK I/O      PIDS
-web             a1b2c3d4e5f6 Up 5 minutes    12.3   123.4MiB / 2.00GiB  6.0   12.0MiB / 8.0MiB  5.0MiB / 1.0MiB  12
-worker          b2c3d4e5f6g7 Up 3 minutes     4.8    80.0MiB / 2.00GiB  3.9   8.0MiB / 6.0MiB   1.0MiB / 2.0MiB  7
-redis           c3d4e5f6g7h8 Up 2 minutes     —      10.0MiB / 1.00GiB  1.0   —                —                3
 ```
 
 - A single dash `—` indicates missing or zeroed metrics.
