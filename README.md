@@ -18,12 +18,12 @@ make build
 ### Quick install (Unix) via curl
 Prebuilt binaries (recommended) if releases are available:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yourusername/whale/main/scripts/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/therapys/whale/main/scripts/install.sh | sh
 ```
 
 Install a specific version (e.g., v0.1.0):
 ```bash
-VERSION=v0.1.0 curl -fsSL https://raw.githubusercontent.com/yourusername/whale/main/scripts/install.sh | sh
+VERSION=v0.1.0 curl -fsSL https://raw.githubusercontent.com/therapys/whale/main/scripts/install.sh | sh
 ```
 
 If no release asset is found, the script falls back to `go install` (requires Go), then places `whale` into `/usr/local/bin` (use `sudo` if required). You can override destination with `DEST=/some/path`.
