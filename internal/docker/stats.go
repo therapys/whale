@@ -55,7 +55,7 @@ func CollectSnapshots(ctx context.Context, cli *client.Client, includeAll bool) 
 	if len(runningIdx) == 0 {
 		return snapshots, nil
 	}
-	concurrency := 8
+    concurrency := 16
 	if len(runningIdx) < concurrency {
 		concurrency = len(runningIdx)
 	}
@@ -68,7 +68,7 @@ func CollectSnapshots(ctx context.Context, cli *client.Client, includeAll bool) 
 		go func() {
 			defer wg.Done()
 			defer func() { <-sem }()
-			cctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+            cctx, cancel := context.WithTimeout(ctx, 1500*time.Millisecond)
 			defer cancel()
 			if err := populateStats(cctx, cli, &snapshots[i], snapshots[i].ID); err != nil {
 				snapshots[i].Status = "ERROR"
